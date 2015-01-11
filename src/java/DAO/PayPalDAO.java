@@ -40,7 +40,7 @@ public class PayPalDAO {
     /// OBS!!!! PayPal kommer ej åt localhost eller något annat   ///
     /// lokalt, därför behöver man sätta en extern ip-adress här. ///
     /// Sätt <ip-adress>:port - exempelvis "83.255.164.113:8080"  ///
-    private final String IP_ADDRESS = ;
+    private final String IP_ADDRESS = "5.241.70.112:8080";
     /////////////////////////////////////////////////////////////////
     
 

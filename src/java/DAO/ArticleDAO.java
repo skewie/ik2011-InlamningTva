@@ -84,11 +84,12 @@ public class ArticleDAO implements Serializable {
     }
 
     public boolean createArticle(Article article) throws SQLException {
-        PreparedStatement stmt = con.prepareStatement("INSERT INTO article (name, published_year, price, image_url) VALUES (?, ?, ?, ?)");
-        stmt.setString(1, article.getName());
-        stmt.setString(2, article.getPublishedYear());
-        stmt.setDouble(3, article.getPrice());
-        stmt.setString(4, article.getImageUrl());
+        PreparedStatement stmt = con.prepareStatement("INSERT INTO article (name, published_year, price, image_url) VALUES (?, ?, ?, ?, ?)");
+        stmt.setInt(1, article.getCatId());
+        stmt.setString(2, article.getName());
+        stmt.setString(3, article.getPublishedYear());
+        stmt.setDouble(4, article.getPrice());
+        stmt.setString(5, article.getImageUrl());
         return stmt.execute();
     }
 
@@ -183,6 +184,7 @@ public class ArticleDAO implements Serializable {
         while (rs.next()) {
             Article article = new Article();
             article.setArticleId(rs.getInt("id"));
+            article.setCatId(rs.getInt("cat_id"));
             article.setName(rs.getString("name"));
             article.setPrice(rs.getDouble("price"));
             article.setPublishedYear(rs.getString("published_year"));

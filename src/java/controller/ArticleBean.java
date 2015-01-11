@@ -23,6 +23,7 @@ public class ArticleBean implements Serializable {
     private ArrayList<Article> articles = null;
     private ArticleDAO dao;
     private ArrayList<Article> searchedArticles;
+    private int catId;
     
     /**
      * Creates a new instance of ArticleBean
@@ -194,14 +195,21 @@ public class ArticleBean implements Serializable {
      * @param inArticle tar emot Artikel objekt
      */
     private void search(Article inArticle){
-        System.out.println("searching for " + inArticle.getName()+"...");
         for(Article a : this.articles){
-            System.out.println(a.getName());
             String inName = inArticle.getName().toLowerCase();
             String arrayName = a.getName().toLowerCase();
+            int inCatId = inArticle.getCatId();
+            System.out.println("Sökt catid: " + inCatId);
+            System.out.println("produkt catid: " + a.getCatId());
             if(arrayName.equalsIgnoreCase("") || inArticle.getName().isEmpty()){
-                this.searchedArticles.clear();
-                break;
+                if(a.getCatId() == inCatId){
+                    System.out.println("Hittat enbart kategori.");
+                    this.searchedArticles.add(a);
+                }else if(inCatId == 0){
+                    System.out.println("Allt är tomt.");
+                    this.searchedArticles.clear();
+                    break;
+                }
             }else if(arrayName.contains(inName)){
                 System.out.println("Found it! It's: " + a.getName());
                 this.searchedArticles.add(a);

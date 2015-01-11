@@ -20,6 +20,7 @@ import util.messages.MessageHandler;
 public class Article implements Serializable {
 
     private int articleId;
+    private int catId;
     private String name;
     private double price;
     private String publishedYear;
@@ -31,8 +32,9 @@ public class Article implements Serializable {
         editable = false;
     }
 
-    public Article(int articleId, String name, double price) {
+    public Article(int articleId, int catId, String name, double price) {
         this.articleId = articleId;
+        this.catId = catId;
         this.name = name;
         this.price = price;
         editable = false;
@@ -52,6 +54,14 @@ public class Article implements Serializable {
 
     public void setArticleId(int articleId) {
         this.articleId = articleId;
+    }
+    
+    public void setCatId(int catId){
+        this.catId = catId;
+    }
+    
+    public int getCatId(){
+        return this.catId;
     }
 
     public String getName() {

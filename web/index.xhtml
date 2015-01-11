@@ -51,6 +51,12 @@
                         <b:row>
                             <b:column col-lg="6" col-md="6" col-xs="10">
                                 <b:inputText value="#{article.name}" placeholder="Sök på artikelnamn" />
+                                <b:selectOneMenu value="#{article.catId}" label="Välj Genre">
+                                    <f:selectItem itemLabel="" itemValue="0" />
+                                    <f:selectItem itemLabel="Strategi" itemValue="1"/>
+                                    <f:selectItem itemLabel="RPG" itemValue="2" />
+                                    <f:selectItem itemLabel="Kortspel" itemValue="3" />
+                                </b:selectOneMenu>
                             </b:column>
                             <b:column col-lg="1" col-md="1" col-xs="1">
                                 <b:commandButton value=" Sök" ajax="true" look="default" size="md" action="#{articleBean.searchArticle(article)}" update="searchForm">
