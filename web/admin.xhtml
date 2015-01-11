@@ -1,0 +1,137 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:b="http://bootsfaces.net/ui">
+    <h:head>
+        <title>Brädspelsshoppen - Administrera</title>
+    </h:head>
+    <h:body>
+        <b:navBar brand="Brädspelsshopen" brandHref="./index.xhtml" inverse="true">
+            <b:navbarLinks>
+                <b:navLink value="Administration" outcome="admin.xhtml"></b:navLink>          
+            </b:navbarLinks>
+        </b:navBar>
+        <b:container>
+            <h:form id="tableForm"> 
+                <h2>Administrera varor</h2>
+                <h:dataTable id="mainTable" value="${articleBean.articles}" var="article" class="table table-striped">
+                    <h:column>
+                        <f:facet name="header">Namn</f:facet>
+                        <h:inputText id="updateFormName" value="${article.name}" rendered="${article.editable}" size="10" validator="${article.validateName}">
+                            <f:ajax event="blur" render="updateFormNameError" />
+                        </h:inputText>
+                        <h:message for="updateFormName" id="updateFormNameError" style="color:red" />
+                        <h:outputText value="${article.name}" rendered="${not article.editable}"></h:outputText>
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">Publicerad</f:facet>
+                        <h:inputText id="updateFormPublishedYear" value="${article.publishedYear}" rendered="${article.editable}" size="4" validator="${article.validatePublishedYear}">
+                            <f:ajax event="blur" render="updateFormPublishedYearError" />
+                        </h:inputText>
+                        <h:message for="updateFormPublishedYear" id="updateFormPublishedYearError" style="color:red" />
+                        <h:outputText value="${article.publishedYear}" rendered="${not article.editable}" />
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">Pris</f:facet>
+                        <h:inputText id="updateFormPrice" value="${article.price}" rendered="${article.editable}" size="4">
+                            <f:ajax event="blur" render="updateFormPriceError" />
+                        </h:inputText>
+                        <h:message for="updateFormPrice" id="updateFormPriceError" style="color:red" />
+                        <h:outputText value="${article.price}" rendered="${not article.editable}" />
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">Bild URL</f:facet>
+                        <h:inputText value="${article.imageUrl}" rendered="${article.editable}" size="10" style="width:100%;"/>
+                        <h:outputText value="${article.imageUrl}" rendered="${not article.editable}" />
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header"></f:facet>
+                        <h:commandLink id="removeLink" value="Ta bort" action="${articleBean.deleteArticle(article)}">
+                            <f:ajax render="@form" />
+                        </h:commandLink>
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header"></f:facet>
+                        <h:commandLink rendered="${not article.editable}" id="editLink" value="Redigera" action="${articleBean.enableEditAction(article)}">
+                            <f:ajax render="@form" />
+                        </h:commandLink>
+                        <h:commandLink rendered="${article.editable}" id="cancelEditLink" value="Avbryt" action="${articleBean.enableEditAction(article)}">
+                            <f:ajax render="@form" />
+                        </h:commandLink>
+                    </h:column>
+                </h:dataTable>
+                <h:commandButton rendered="${articleBean.anyItemEditable}" value="Uppdatera alla" action="${articleBean.saveUpdatesAction()}">
+                    <f:ajax render="@form" execute="@form" />
+                </h:commandButton>
+            </h:form>
+            <br />
+            <br />
+            <h:form>
+                <h2>Lägg till vara</h2>
+                <h:panelGrid columns="3">
+                    <h:outputLabel value="Namn:" />
+                    <h:inputText id="addFormName" value="${article.name}" validator="${article.validateName}">
+                        <f:ajax event="blur" render="addFormNameError" />
+                    </h:inputText>
+                    <h:message for="addFormName" id="addFormNameError" style="color:red" />
+
+                    <h:outputLabel value="Publicerad (År):" />
+                    <h:inputText id="addFormPublishedYear" value="${article.publishedYear}" validator="${article.validatePublishedYear}">
+                        <f:ajax event="blur" render="addFormPublishedYearError" />
+                    </h:inputText>
+                    <h:message for="addFormPublishedYear" id="addFormPublishedYearError" style="color:red" />
+
+                    <h:outputLabel value="Pris:" />
+                    <h:inputText id="addFormPrice" value="${article.price}" validator="${article.validatePrice}">
+                        <f:ajax event="blur" render="addFormPriceError" />
+                    </h:inputText>
+                    <h:message for="addFormPrice" id="addFormPriceError" style="color:red" />
+
+                    <h:outputLabel value="Bild URL:" />
+                    <h:inputText id="addFormImageUrl" value="${article.imageUrl}" validator="${article.validateImageUrl}">
+                        <f:ajax event="blur" render="addFormImageUrlError" />
+                    </h:inputText>
+                    <h:message for="addFormImageUrl" id="addFormImageUrlError" style="color:red" />
+
+                    <h:commandButton value="Lägg till" action="${articleBean.createAction(article)}">
+                        <f:ajax render="@all" execute="@form" />
+                    </h:commandButton>
+                </h:panelGrid>
+            </h:form>
+
+            <h2>Lagda ordrar</h2>
+            <h:form>
+                <h:dataTable id="orderTable" value="${cartBean.allOrders}" var="adminorder" class="table table-striped">
+                    <h:column>
+                        <f:facet name="header">Förnamn</f:facet>
+                        <h:outputText value="${adminorder.firstname}"/>
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">Efternamn</f:facet>
+                        <h:outputText value="${adminorder.lastname}"/>
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">Artikel</f:facet>
+                        <h:outputText value="${adminorder.name}"/>
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">Mängd</f:facet>
+                        <h:outputText value="${adminorder.amount}"/>
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">Pris/st</f:facet>
+                        <h:outputText value="${adminorder.price}"/>
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">Orderdatum</f:facet>
+                        <h:outputText value="${adminorder.date}"/>
+                    </h:column>
+                </h:dataTable>
+            </h:form>
+        </b:container>
+    </h:body>
+</html>
+

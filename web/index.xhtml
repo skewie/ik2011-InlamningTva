@@ -1,0 +1,211 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:b="http://bootsfaces.net/ui"
+      xmlns:pt="http://xmlns.jcp.org/jsf/passthrough">
+    <!-- 
+    Layout supported by Bootsfaces. A Bootstrap for your JSF2! Source:
+    http://www.bootsfaces.net/page/index.xhtml 
+    -->
+    <h:head>
+        <title>Välkommen till brädspelsshoppen!</title>
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $('#successModal').modal('show'); // Visar modalen för att bekräfta att beställningen är kalr.
+            });
+        </script>
+    </h:head>
+    <h:body>
+        <!-- Navbar -->
+        <b:navBar brand="Brädspelsshopen" brandHref="./index.xhtml" inverse="true">
+            <b:navbarLinks>
+                <b:navLink value="Administration" outcome="admin.xhtml"></b:navLink>          
+            </b:navbarLinks>
+            <b:navbarLinks pull="right">
+                <b:navLink class="navButtonsDown">
+                    <h:form class="navbar-form" rendered="#{not userBean.userLoggedIn}">
+                        <b:inputText value="#{user.username}" placeholder="Användarnamn" fieldSize="sm" class="form-group"/>
+                        <b:inputText value="#{user.password}" pt:placeholder="Lösenord" type="secret" fieldSize="sm" class="form-group"/>
+                        <b:buttonGroup>
+                            <h:commandButton class="btn btn-success btn-sm form-group" value="Logga In" action="#{userBean.login(user)}"/>
+                            <b:button value="Ny Användare" look="primary" pt:data-target="#amodal" pt:data-toggle="modal" onclick="return false;" size="sm"/>
+                        </b:buttonGroup>
+                    </h:form>
+                    <h:form class="navbar-form" rendered="#{userBean.userLoggedIn}">
+                        <a id="atrigger" href="#historyModal" data-toggle="modal">Historik</a>
+                        <b:navLink href="#" value="Välkommen #{userBean.user.firstname} #{userBean.user.lastname}"/>
+                        <b:commandButton class="btn btn-danger btn-sm form-group" value="Logga Ut" action="#{userBean.logout()}" style="display:inline;"/>
+                    </h:form>
+                </b:navLink>
+            </b:navbarLinks>
+        </b:navBar>
+        <br/>
+        <!-- Sök produkt -->
+        <b:container>
+            <b:column col-lg="8" col-md="8" col-xs="12">
+                <b:panel title="Sök Produkt">
+                    <h:form id="searchForm">
+                        <b:row>
+                            <b:column col-lg="6" col-md="6" col-xs="10">
+                                <b:inputText value="#{article.name}" placeholder="Sök på artikelnamn" />
+                            </b:column>
+                            <b:column col-lg="1" col-md="1" col-xs="1">
+                                <b:commandButton value=" Sök" ajax="true" look="default" size="md" action="#{articleBean.searchArticle(article)}" update="searchForm">
+                                    <f:ajax render="searchForm" execute="@form" />
+                                </b:commandButton>
+                            </b:column>
+                        </b:row>
+                        <br/>
+                        <b:row>
+                            <h:dataTable value="#{articleBean.searchhedArticles}" var="art" class="table table-striped">
+                                <h:column>
+                                    <h:graphicImage url="${art.imageUrl}" class="img-responsive"/>
+                                </h:column>
+                                <h:column>
+                                    <f:facet name="header">Namn</f:facet>
+                                    <h:outputText value="${art.name}"/>
+                                </h:column>
+                                <h:column>
+                                    <f:facet name="header">Publicerad</f:facet>
+                                     <h:outputText value="${art.publishedYear}" />
+                                </h:column>
+                                <h:column>
+                                    <f:facet name="header">Pris</f:facet>
+                                    <h:outputText value="${art.price} SEK" />
+                                </h:column>
+                            </h:dataTable>
+                        </b:row>
+                    </h:form>
+                </b:panel>
+            </b:column>
+        </b:container>
+        <br/>
+        <!-- Varutabell -->
+        <b:container>
+            <b:column col-lg="8" col-md="8" col-xs="12">
+                <b:panel title="Varor">
+                    <h:form id="tableForm"> 
+                        <h:dataTable id="mainTable" value="${articleBean.articles}" var="article" class="table table-striped">
+                            <h:column>
+                                <h:graphicImage url="${article.imageUrl}" class="img-responsive"/>
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header">Namn</f:facet>
+                                <h:outputText style="" value="${article.name}"></h:outputText>
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header">Publicerad</f:facet>
+                                <h:outputText value="${article.publishedYear}" />
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header">Pris</f:facet>
+                                <h:outputText value="${article.price}" />
+                            </h:column>
+                            <h:column rendered="#{userBean.userLoggedIn}">
+                                <f:facet name="header"></f:facet>
+                                <b:commandButton value="Lägg Till" id="addItemToCart" look="primary" ajax="true" update="cartForm" action="${cartBean.addArticle(article)}">
+                                    <f:ajax render="cartForm" execute="@form" />
+                                </b:commandButton>
+                            </h:column>
+                        </h:dataTable>
+                    </h:form>
+                </b:panel>
+            </b:column>
+            <!-- Kundvagn -->
+            <b:column col-lg="4" col-sm="4" col-xs="12" rendered="#{userBean.userLoggedIn}">
+                <b:panel title="Kundvagn">
+                    <h:form id="cartForm">
+                        <h:dataTable id="cartDataTable" value="${cartBean.cartRows}" var="cart" class="table table-striped">
+                            <h:column>
+                                <f:facet name="header">Artikel</f:facet>
+                                <h:outputText title="${cart.article.name}" value="${cart.article.name.length() gt 18 ? cart.article.name.substring(0, 15).concat('...') : cart.article.name}"/>
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header">Antal</f:facet>
+                                <b:commandButton id="decreaseAmount" value="-" look="default" size="xs" ajax="true" update="cartForm" rendered="${not cartBean.cartEmpty}" action="${cartBean.reduceItemAmount(cart.article.articleId)}"  style="margin-right: 5px;" >
+                                    <f:ajax render="@form" execute="@form" />
+                                </b:commandButton>
+                                
+                                <h:outputText value="${cart.amount}" style="margin-right: 5px;" />
+                                
+                                <b:commandButton id="increaseAmount" value="+" look="default" size="xs" ajax="true" update="cartForm" rendered="${not cartBean.cartEmpty}" action="${cartBean.increaseItemAmount(cart.article.articleId)}">
+                                    <f:ajax render="@form" execute="@form" />
+                                </b:commandButton>
+                            </h:column>
+                            <h:column>
+                                <f:facet name="header">Ta Bort</f:facet>
+                                <b:commandButton id="removeRow" value="Ta Bort" look="danger" ajax="true" update="cartForm" rendered="${not cartBean.cartEmpty}" action="${cartBean.removeArticle(cart.article)}">
+                                    <f:ajax render="@form" execute="@form" />
+                                </b:commandButton>
+                            </h:column>
+                        </h:dataTable>
+                        <h:outputText value="Total Summa: ${cartBean.cartTotalPrice}"/>
+                        <br/>
+                        <br/>
+                        <b:commandButton value="Beställ" look="success" action="${cartBean.checkOut(userBean.user)}" rendered="${not cartBean.cartEmpty}" style="width: 100%;" />
+                    </h:form>
+                </b:panel>
+            </b:column>
+        </b:container>
+        
+        <!-- MODALS -->
+        <b:modal id="successModal" title="Order skickad!" rendered="#{not empty param['order_complete']}">
+            <h:outputText value="Tack för din beställning! Ett mail med din order har även skickats till dig." />
+            <f:facet name="footer">
+                <b:button value="Stäng" dismiss="modal" onclick="return false;"/>
+                <b:button value="OK" look="primary"/>
+            </f:facet>
+        </b:modal>
+        <b:modal id="amodal" title="Skapa Ny Användare">
+            <p>Fyll i alla fält för att skapa din användare.</p>
+            <h:form>
+                <b:row>
+                    <b:inputText value="#{user.username}" placeholder="Användarnamn" span="6"/>
+                    <b:inputSecret value="#{user.password}" placeholder="Lösenord" span="6"/>
+                </b:row>
+                <br/>
+                <b:row>
+                    <b:inputText value="#{user.firstname}" placeholder="Förnamn" span="4"/>
+                    <b:inputText value="#{user.lastname}" placeholder="Efternamn" span="4"/>
+                    <b:inputText value="#{user.email}" placeholder="Email" span="4"/>
+                </b:row>
+                <br/>
+                <b:buttonGroup>
+                    <b:button value="Avbryt" dismiss="modal" look="danger" onclick="return false;"/>
+                    <h:commandButton value="Skapa Användare" class="btn btn-primary" action="#{userBean.createUser(user)}" />
+                </b:buttonGroup>
+            </h:form>
+        </b:modal>
+        <!-- END -->
+        
+        <b:modal id="historyModal" title="Order Historik">
+            <h:dataTable value="#{userBean.userOrders}" var="history" class="table table-striped">
+                <h:column>
+                    <f:facet name="header">Artikel</f:facet>
+                    <h:outputText value="#{history.name}" />
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Antal</f:facet>
+                    <h:outputText value="#{history.amount}" />
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Pris</f:facet>
+                    <h:outputText value="#{history.price}" />
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Datum</f:facet>
+                    <h:outputText value="#{history.date}" />
+                </h:column>
+            </h:dataTable>
+            <f:facet name="footer">
+                <b:button value="Stäng" look="danger" dismiss="modal" onclick="return false;"/>
+            </f:facet>
+        </b:modal>
+        
+        
+    </h:body>
+</html>
+
