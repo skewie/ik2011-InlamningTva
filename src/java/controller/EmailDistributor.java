@@ -12,8 +12,10 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Properties;
 import javax.mail.Address;
+import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.AddressException;
@@ -29,10 +31,25 @@ public class EmailDistributor implements Serializable {
 
     private static final String senderAddress = "h11tobbu@gmail.com";
 
+    public static final String USERNAME = "h11tobbu@gmail.com";
+    public static final String PASSWORD = "V3rryImp0r74NT!";
+    public static final String ADDRESS_SMPT = "smtp.gmail.com";
+
+    public static Properties getSendProperties() {
+        Properties prop = new Properties();
+        prop.put("mail.smtp.auth", "true");
+        prop.put("mail.smtp.ssl.trust", ADDRESS_SMPT);
+        prop.put("mail.smtp.starttls.enable", "true");
+        prop.put("mail.smtp.host", ADDRESS_SMPT);
+        prop.put("mail.smtp.port", "587");
+
+        return prop;
+    }
+
     public static void sendConfirmationMail(CartBean cart, User user) {
         //mail inits
         Properties props = System.getProperties();
-        Session session = Session.getInstance(props);
+        Session session = getSession();
         MimeMessage message = new MimeMessage(session);
         Transport transport = null;
 
@@ -40,16 +57,19 @@ public class EmailDistributor implements Serializable {
             //set reciever
             Address address = new InternetAddress(user.getEmail());
             //build message
-            message.setFrom(new InternetAddress(senderAddress, "Brädspelsshoppen"));
+            message.setFrom(new InternetAddress(USERNAME, "Brädspelsshoppen"));
             message.setRecipient(Message.RecipientType.TO, address);
             message.setSubject("Orderbekräftelse");
             message.setText(prepareMessage(cart, user));
+            Transport.send(message);
+            
             //transporter settings
-            transport = session.getTransport("smtps");
+            //transport = session.getTransport("smtps");
             //sender settings
-            transport.connect("smtp.gmail.com", "h11tobbu@gmail.com", "V3rryImp0r74NT!");
+            //transport.connect("smtp.gmail.com", "h11tobbu@gmail.com", "V3rryImp0r74NT!");
             //sends message
-            transport.sendMessage(message, message.getAllRecipients());
+            
+            //transport.sendMessage(message, message.getAllRecipients());
         } catch (AddressException | UnsupportedEncodingException e) {
             System.out.println("Address or Encoding Error!!!");
             System.out.println(e.getMessage());
@@ -71,5 +91,13 @@ public class EmailDistributor implements Serializable {
         Calendar cal = Calendar.getInstance();
         message += "Order placerad: " + dateFormat.format(cal.getTime());
         return message;
+    }
+
+    public static Session getSession() {
+        return Session.getInstance(getSendProperties(), new Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(USERNAME, PASSWORD);
+            }
+        });
     }
 }
